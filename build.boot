@@ -21,11 +21,11 @@
 (def +version+ "0.1.0")
 
 (task-options!
-  pom {:project     'mvc-works/stack-workflow
+  pom {:project     'Respo/notifications-layer
        :version     +version+
        :description "Workflow"
-       :url         "https://github.com/mvc-works/stack-workflow"
-       :scm         {:url "https://github.com/mvc-works/stack-workflow"}
+       :url         "https://github.com/Respo/notifications-layer"
+       :scm         {:url "https://github.com/Respo/notifications-layer"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
 
 (defn use-text [x] {:attrs {:innerHTML x}})
@@ -62,11 +62,11 @@
   (set-env!
     :asset-paths #{"assets"})
   (comp
-    (watch)
+    (repl)
     (start-stack-editor!)
     (target :dir #{"src/"})
     (html-file :data {:build? false})
-    (reload :on-jsload 'stack-workflow.core/on-jsload
+    (reload :on-jsload 'notifications-layer.core/on-jsload
             :cljs-asset-path ".")
     (cljs)
     (target)))
@@ -87,7 +87,7 @@
 
 (deftask rsync []
   (with-pre-wrap fileset
-    (sh "rsync" "-r" "target/" "tiye:repo/mvc-works/stack-workflow" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "tiye:repo/Respo/notifications-layer" "--exclude" "main.out" "--delete")
     fileset))
 
 (deftask build []
@@ -110,4 +110,4 @@
     :source-paths #{"src" "test"})
   (comp
     (watch)
-    (test :namespaces '#{stack-workflow.test})))
+    (test :namespaces '#{notifications-layer.test})))
