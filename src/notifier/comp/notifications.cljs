@@ -22,13 +22,14 @@
 (defonce shown-ids (atom (hash-set)))
 
 (defn pop-notification! [notification on-close!]
-  (if (= "granted" (.-permission js/Notification))
-    (show-it! notification on-close!)
-    (.requestPermission
-      js/Notification
-      (fn [permission]
-        (if (= "granted" permission)
-          (show-it! notification on-close!))))))
+  (if (not= "visible" (.-visibilityState js/document))
+    (if (= "granted" (.-permission js/Notification))
+      (show-it! notification on-close!)
+      (.requestPermission
+        js/Notification
+        (fn [permission]
+          (if (= "granted" permission)
+            (show-it! notification on-close!)))))))
 
 (defn notify! [notifications on-close!]
   (let [ids (into (hash-set) (keys notifications))
