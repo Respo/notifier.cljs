@@ -4,11 +4,11 @@
                  [org.clojure/clojure       "1.8.0"       :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.12"      :scope "test"]
-                 [cirru/stack-server        "0.1.10"      :scope "test"]
+                 [cirru/stack-server        "0.1.11"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
                  [respo/ui                  "0.1.1"]
-                 [respo                     "0.3.9"]])
+                 [respo                     "0.3.13"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]]
@@ -21,11 +21,11 @@
 (def +version+ "0.1.0")
 
 (task-options!
-  pom {:project     'Respo/notifications-layer
+  pom {:project     'respo/notifier
        :version     +version+
-       :description "Workflow"
-       :url         "https://github.com/Respo/notifications-layer"
-       :scm         {:url "https://github.com/Respo/notifications-layer"}
+       :description "Notifications Layer for Respo apps"
+       :url         "https://github.com/Respo/notifier"
+       :scm         {:url "https://github.com/Respo/notifier"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
 
 (defn use-text [x] {:attrs {:innerHTML x}})
@@ -33,7 +33,7 @@
   (make-html
     (html {}
     (head {}
-      (title (use-text "Stack Workflow"))
+      (title (use-text "Notifications"))
       (link {:attrs {:rel "icon" :type "image/png" :href "mvc-works-192x192.png"}})
       (if (:build? data)
         (link (:attrs {:rel "manifest" :href "manifest.json"})))
@@ -66,7 +66,7 @@
     (start-stack-editor!)
     (target :dir #{"src/"})
     (html-file :data {:build? false})
-    (reload :on-jsload 'notifications-layer.core/on-jsload
+    (reload :on-jsload 'notifier.core/on-jsload
             :cljs-asset-path ".")
     (cljs)
     (target)))
@@ -87,7 +87,7 @@
 
 (deftask rsync []
   (with-pre-wrap fileset
-    (sh "rsync" "-r" "target/" "tiye:repo/Respo/notifications-layer" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "tiye:repo/Respo/notifier" "--exclude" "main.out" "--delete")
     fileset))
 
 (deftask build []
@@ -110,4 +110,4 @@
     :source-paths #{"src" "test"})
   (comp
     (watch)
-    (test :namespaces '#{notifications-layer.test})))
+    (test :namespaces '#{notifier.test})))
