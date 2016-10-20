@@ -1,5 +1,5 @@
 
-(ns notifier.core
+(ns notifier.main
   (:require [respo.core :refer [render! clear-cache!]]
             [notifier.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]

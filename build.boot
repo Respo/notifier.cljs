@@ -1,20 +1,20 @@
 
 (set-env!
- :dependencies '[[org.clojure/clojurescript "1.9.216"     :scope "test"]
-                 [org.clojure/clojure       "1.8.0"       :scope "test"]
+ :dependencies '[[org.clojure/clojure       "1.8.0"       :scope "test"]
+                 [org.clojure/clojurescript "1.9.216"     :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.12"      :scope "test"]
-                 [cirru/stack-server        "0.1.11"      :scope "test"]
+                 [cirru/boot-stack-server   "0.1.16"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo/ui                  "0.1.1"]
-                 [respo                     "0.3.13"]])
+                 [respo/ui                  "0.1.2"]
+                 [respo                     "0.3.25"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]]
          '[stack-server.core  :refer [start-stack-editor! transform-stack]]
          '[respo.alias        :refer [html head title script style meta' div link body]]
-         '[respo.render.static-html :refer [make-html]]
+         '[respo.render.html  :refer [make-html]]
          '[adzerk.boot-test   :refer :all]
          '[clojure.java.io    :as    io])
 
@@ -33,12 +33,11 @@
   (make-html
     (html {}
     (head {}
-      (title (use-text "Notifications"))
-      (link {:attrs {:rel "icon" :type "image/png" :href "mvc-works-192x192.png"}})
-      (if (:build? data)
-        (link (:attrs {:rel "manifest" :href "manifest.json"})))
+      (title (use-text "Notifier"))
+      (link {:attrs {:rel "icon" :type "image/png" :href "logo.respo.site/respo.png"}})
       (meta'{:attrs {:charset "utf-8"}})
       (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
+      (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
       (style (use-text "body {margin: 0;}"))
       (style (use-text "body * {box-sizing: border-box;}"))
       (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
@@ -51,7 +50,7 @@
   [d data VAL edn "data piece for rendering"]
   (with-pre-wrap fileset
     (let [tmp (tmp-dir!)
-          out (io/file tmp "index.html")]
+          out (io/file tmp "dev.html")]
       (empty-dir! tmp)
       (spit out (html-dsl data fileset))
       (-> fileset
@@ -66,9 +65,9 @@
     (start-stack-editor!)
     (target :dir #{"src/"})
     (html-file :data {:build? false})
-    (reload :on-jsload 'notifier.core/on-jsload
+    (reload :on-jsload 'notifier.main/on-jsload
             :cljs-asset-path ".")
-    (cljs)
+    (cljs :compiler-options {:language-in :ecmascript5})
     (target)))
 
 (deftask generate-code []
@@ -81,7 +80,8 @@
     :asset-paths #{"assets"})
   (comp
     (transform-stack :filename "stack-sepal.ir")
-    (cljs :optimizations :advanced)
+    (cljs :optimizations :advanced
+          :compiler-options {:language-in :ecmascript5})
     (html-file :data {:build? true})
     (target)))
 
