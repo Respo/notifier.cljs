@@ -1,1 +1,174 @@
-{:definitions {"notifier.comp.notifications/shown-ids" ["defonce" "shown-ids" ["atom" ["hash-set"]]], "notifier.comp.container/on-add" ["defn" "on-add" ["e" "dispatch!"] ["dispatch!" ":add-one" "nil"]], "notifier.comp.notifications/pop-notification!" ["defn" "pop-notification!" ["notification" "on-close!"] ["if" ["not=" "|visible" [".-visibilityState" "js/document"]] ["if" ["=" "|granted" [".-permission" "js/Notification"]] ["show-it!" "notification" "on-close!"] [".requestPermission" "js/Notification" ["fn" ["permission"] ["if" ["=" "|granted" "permission"] ["show-it!" "notification" "on-close!"]]]]]]], "notifier.main/-main" ["defn" "-main" [] ["enable-console-print!"] ["render-app!"] ["add-watch" "store-ref" ":changes" "render-app!"] ["add-watch" "states-ref" ":changes" "render-app!"] ["println" "|app started!"]], "notifier.updater.core/add-one" ["defn" "add-one" ["store" "op-data" "op-id"] ["assoc" "store" "op-id" ["{}" [":id" "op-id"] [":title" "|demo title"] [":body" "|demo body"] [":time" "op-id"] [":icon" "nil"]]]], "notifier.comp.container/comp-container" ["def" "comp-container" ["create-comp" ":container" "render"]], "notifier.comp.container/render" ["defn" "render" ["store"] ["fn" ["state" "mutate!"] ["div" ["{}" [":style" ["merge" "ui/global" "ui/card"]]] ["div" ["{}" [":style" "ui/button"] [":event" ["{}" [":click" "on-add"]]]] ["comp-text" "|Add" "nil"]] ["comp-debug" "store" "nil"]]]], "notifier.updater.core/default-handler" ["defn" "default-handler" ["store" "op-data" "op-id"] "store"], "notifier.style.widget/global" ["def" "global" ["{}" [":font-family" "|Verdana"]]], "notifier.main/on-jsload" ["defn" "on-jsload" [] ["clear-cache!"] ["render-app!"] ["println" "|code update."]], "notifier.updater.core/updater" ["defn" "updater" ["store" "op" "op-data" "op-id"] ["let" [["handler" ["case" "op" [":add-one" "add-one"] [":remove-one" "remove-one"] "default-handler"]]] ["handler" "store" "op-data" "op-id"]]], "notifier.main/states-ref" ["defonce" "states-ref" ["atom" ["{}"]]], "notifier.comp.notifications/show-it!" ["defn" "show-it!" ["notification" "on-close!"] ["let" [["instance" ["js/Notification." [":title" "notification"] ["clj->js" ["merge" ["{}"] ["if" ["some?" [":body" "notification"]] ["{}" ["|body" [":body" "notification"]]]] ["if" ["some?" [":icon" "notification"]] ["{}" ["|icon" [":icon" "notification"]]]]]]]]] ["set!" [".-onclose" "instance"] ["fn" ["event"] ["on-close!" [":id" "notification"]]]] ["set!" [".-onclick" "instance"] ["fn" ["event"] [".focus" "js/window"] [".close" "instance"]]]]], "notifier.main/render-app!" ["defn" "render-app!" [] ["let" [["target" [".querySelector" "js/document" "|#app"]]] ["render!" ["comp-container" "@store-ref"] "target" "dispatch!" "states-ref"] ["notify!" "@store-ref" "on-close!"]]], "notifier.main/on-close!" ["defn" "on-close!" ["id"] ["dispatch!" ":remove-one" "id"]], "notifier.main/store-ref" ["defonce" "store-ref" ["atom" ["{}"]]], "notifier.updater.core/remove-one" ["defn" "remove-one" ["store" "op-data" "op-id"] ["dissoc" "store" "op-data"]], "notifier.comp.notifications/notify!" ["defn" "notify!" ["notifications" "on-close!"] ["let" [["ids" ["into" ["hash-set"] ["keys" "notifications"]]] ["new-ids" ["set/difference" "ids" "@shown-ids"]]] ["doseq" ["[]" "new-id" "new-ids"] ["pop-notification!" ["get" "notifications" "new-id"] "on-close!"]] ["reset!" "shown-ids" "ids"]]], "notifier.main/dispatch!" ["defn" "dispatch!" ["op" "op-data"] ["let" [["id" [".valueOf" ["js/Date."]]] ["new-store" ["updater" "@store-ref" "op" "op-data" "id"]]] ["reset!" "store-ref" "new-store"]]]}, :namespaces {"notifier.comp.container" ["ns" "notifier.comp.container" [":require" ["[]" "hsl.core" ":refer" ["[]" "hsl"]] ["[]" "respo-ui.style" ":as" "ui"] ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div" "span"]] ["[]" "respo.comp.space" ":refer" ["[]" "comp-space"]] ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]] ["[]" "respo.comp.debug" ":refer" ["[]" "comp-debug"]] ["[]" "notifier.style.widget" ":as" "widget"]]], "notifier.main" ["ns" "notifier.main" [":require" ["[]" "respo.core" ":refer" ["[]" "render!" "clear-cache!"]] ["[]" "notifier.comp.container" ":refer" ["[]" "comp-container"]] ["[]" "cljs.reader" ":refer" ["[]" "read-string"]] ["[]" "notifier.updater.core" ":refer" ["[]" "updater"]] ["[]" "notifier.comp.notifications" ":refer" ["[]" "notify!"]]]], "notifier.style.widget" ["ns" "notifier.style.widget" [":require" ["[]" "hsl.core" ":refer" ["[]" "hsl"]]]], "notifier.comp.notifications" ["ns" "notifier.comp.notifications" [":require" ["[]" "clojure.string" ":as" "string"] ["[]" "clojure.set" ":as" "set"]]], "notifier.updater.core" ["ns" "notifier.updater.core" [":require" ["[]" "clojure.string" ":as" "string"]]]}, :main-definition nil, :procedures {"notifier.main" [["set!" [".-onload" "js/window"] "-main"]], "notifier.comp.notifications" [], "notifier.updater.core" []}}
+{:package nil,
+ :files {"notifier.comp.container" {:ns ["ns"
+                                         "notifier.comp.container"
+                                         [":require"
+                                          ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                          ["[]" "respo-ui.style" ":as" "ui"]
+                                          ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div" "span"]]
+                                          ["[]" "respo.comp.space" ":refer" ["[]" "comp-space"]]
+                                          ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
+                                          ["[]" "respo.comp.debug" ":refer" ["[]" "comp-debug"]]
+                                          ["[]" "notifier.style.widget" ":as" "widget"]]],
+                                    :defs {"on-add" ["defn" "on-add" ["e" "dispatch!"] ["dispatch!" ":add-one" "nil"]],
+                                           "comp-container" ["def"
+                                                             "comp-container"
+                                                             ["create-comp" ":container" "render"]],
+                                           "render" ["defn"
+                                                     "render"
+                                                     ["store"]
+                                                     ["fn"
+                                                      ["state" "mutate!"]
+                                                      ["div"
+                                                       ["{}" [":style" ["merge" "ui/global" "ui/card"]]]
+                                                       ["div"
+                                                        ["{}"
+                                                         [":style" "ui/button"]
+                                                         [":event" ["{}" [":click" "on-add"]]]]
+                                                        ["comp-text" "|Add" "nil"]]
+                                                       ["comp-debug" "store" "nil"]]]]},
+                                    :procs []},
+         "notifier.main" {:ns ["ns"
+                               "notifier.main"
+                               [":require"
+                                ["[]" "respo.core" ":refer" ["[]" "render!" "clear-cache!"]]
+                                ["[]" "notifier.comp.container" ":refer" ["[]" "comp-container"]]
+                                ["[]" "cljs.reader" ":refer" ["[]" "read-string"]]
+                                ["[]" "notifier.updater.core" ":refer" ["[]" "updater"]]
+                                ["[]" "notifier.comp.notifications" ":refer" ["[]" "notify!"]]]],
+                          :defs {"-main" ["defn"
+                                          "-main"
+                                          []
+                                          ["enable-console-print!"]
+                                          ["render-app!"]
+                                          ["add-watch" "store-ref" ":changes" "render-app!"]
+                                          ["add-watch" "states-ref" ":changes" "render-app!"]
+                                          ["println" "|app started!"]],
+                                 "on-jsload" ["defn"
+                                              "on-jsload"
+                                              []
+                                              ["clear-cache!"]
+                                              ["render-app!"]
+                                              ["println" "|code update."]],
+                                 "states-ref" ["defonce" "states-ref" ["atom" ["{}"]]],
+                                 "render-app!" ["defn"
+                                                "render-app!"
+                                                []
+                                                ["let"
+                                                 [["target" [".querySelector" "js/document" "|#app"]]]
+                                                 ["render!"
+                                                  ["comp-container" "@store-ref"]
+                                                  "target"
+                                                  "dispatch!"
+                                                  "states-ref"]
+                                                 ["notify!" "@store-ref" "on-close!"]]],
+                                 "on-close!" ["defn" "on-close!" ["id"] ["dispatch!" ":remove-one" "id"]],
+                                 "store-ref" ["defonce" "store-ref" ["atom" ["{}"]]],
+                                 "dispatch!" ["defn"
+                                              "dispatch!"
+                                              ["op" "op-data"]
+                                              ["let"
+                                               [["id" [".valueOf" ["js/Date."]]]
+                                                ["new-store" ["updater" "@store-ref" "op" "op-data" "id"]]]
+                                               ["reset!" "store-ref" "new-store"]]]},
+                          :procs [["set!" [".-onload" "js/window"] "-main"]]},
+         "notifier.style.widget" {:ns ["ns"
+                                       "notifier.style.widget"
+                                       [":require" ["[]" "hsl.core" ":refer" ["[]" "hsl"]]]],
+                                  :defs {"global" ["def" "global" ["{}" [":font-family" "|Verdana"]]]},
+                                  :procs []},
+         "notifier.comp.notifications" {:ns ["ns"
+                                             "notifier.comp.notifications"
+                                             [":require"
+                                              ["[]" "clojure.string" ":as" "string"]
+                                              ["[]" "clojure.set" ":as" "set"]]],
+                                        :defs {"shown-ids" ["defonce" "shown-ids" ["atom" ["hash-set"]]],
+                                               "pop-notification!" ["defn"
+                                                                    "pop-notification!"
+                                                                    ["notification" "on-close!"]
+                                                                    ["if"
+                                                                     ["not="
+                                                                      "|visible"
+                                                                      [".-visibilityState" "js/document"]]
+                                                                     ["if"
+                                                                      ["="
+                                                                       "|granted"
+                                                                       [".-permission" "js/Notification"]]
+                                                                      ["show-it!" "notification" "on-close!"]
+                                                                      [".requestPermission"
+                                                                       "js/Notification"
+                                                                       ["fn"
+                                                                        ["permission"]
+                                                                        ["if"
+                                                                         ["=" "|granted" "permission"]
+                                                                         ["show-it!" "notification" "on-close!"]]]]]]],
+                                               "show-it!" ["defn"
+                                                           "show-it!"
+                                                           ["notification" "on-close!"]
+                                                           ["let"
+                                                            [["instance"
+                                                              ["js/Notification."
+                                                               [":title" "notification"]
+                                                               ["clj->js"
+                                                                ["merge"
+                                                                 ["{}"]
+                                                                 ["if"
+                                                                  ["some?" [":body" "notification"]]
+                                                                  ["{}" ["|body" [":body" "notification"]]]]
+                                                                 ["if"
+                                                                  ["some?" [":icon" "notification"]]
+                                                                  ["{}" ["|icon" [":icon" "notification"]]]]]]]]]
+                                                            ["set!"
+                                                             [".-onclose" "instance"]
+                                                             ["fn" ["event"] ["on-close!" [":id" "notification"]]]]
+                                                            ["set!"
+                                                             [".-onclick" "instance"]
+                                                             ["fn"
+                                                              ["event"]
+                                                              [".focus" "js/window"]
+                                                              [".close" "instance"]]]]],
+                                               "notify!" ["defn"
+                                                          "notify!"
+                                                          ["notifications" "on-close!"]
+                                                          ["let"
+                                                           [["ids" ["into" ["hash-set"] ["keys" "notifications"]]]
+                                                            ["new-ids" ["set/difference" "ids" "@shown-ids"]]]
+                                                           ["doseq"
+                                                            ["[]" "new-id" "new-ids"]
+                                                            ["pop-notification!"
+                                                             ["get" "notifications" "new-id"]
+                                                             "on-close!"]]
+                                                           ["reset!" "shown-ids" "ids"]]]},
+                                        :procs []},
+         "notifier.updater.core" {:ns ["ns" "notifier.updater.core" [":require" ["[]" "clojure.string" ":as" "string"]]],
+                                  :defs {"add-one" ["defn"
+                                                    "add-one"
+                                                    ["store" "op-data" "op-id"]
+                                                    ["assoc"
+                                                     "store"
+                                                     "op-id"
+                                                     ["{}"
+                                                      [":id" "op-id"]
+                                                      [":title" "|demo title"]
+                                                      [":body" "|demo body"]
+                                                      [":time" "op-id"]
+                                                      [":icon" "nil"]]]],
+                                         "default-handler" ["defn"
+                                                            "default-handler"
+                                                            ["store" "op-data" "op-id"]
+                                                            "store"],
+                                         "updater" ["defn"
+                                                    "updater"
+                                                    ["store" "op" "op-data" "op-id"]
+                                                    ["let"
+                                                     [["handler"
+                                                       ["case"
+                                                        "op"
+                                                        [":add-one" "add-one"]
+                                                        [":remove-one" "remove-one"]
+                                                        "default-handler"]]]
+                                                     ["handler" "store" "op-data" "op-id"]]],
+                                         "remove-one" ["defn"
+                                                       "remove-one"
+                                                       ["store" "op-data" "op-id"]
+                                                       ["dissoc" "store" "op-data"]]},
+                                  :procs []}}}

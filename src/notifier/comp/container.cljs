@@ -13,10 +13,8 @@
 (defn render [store]
   (fn [state mutate!]
     (div
-      {:style (merge ui/global ui/card)}
-      (div
-        {:style ui/button, :event {:click on-add}}
-        (comp-text "Add" nil))
-      (comp-debug store nil))))
+     {:style (merge ui/global ui/card)}
+     (div {:style ui/button, :event {:click on-add}} (comp-text "Add" nil))
+     (comp-debug store nil))))
 
 (def comp-container (create-comp :container render))
