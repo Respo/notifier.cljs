@@ -9,7 +9,7 @@ Since Notifications API does not fit into Respo's declarative pattern, I have to
 [![Clojars Project](https://img.shields.io/clojars/v/respo/notifier.svg)](https://clojars.org/respo/notifier)
 
 ```clojure
-[respo/notifier "0.1.1"]
+[respo/notifier "0.1.2"]
 ```
 
 ```clojure
