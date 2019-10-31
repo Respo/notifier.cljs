@@ -1,8 +1,16 @@
 
-(ns notifier.comp.notifications
-  (:require [clojure.string :as string] [clojure.set :as set]))
+(ns notifier.core
+  (:require [hsl.core :refer [hsl]]
+            [respo-ui.core :as ui]
+            [respo.core
+             :refer
+             [defcomp cursor-> action-> mutation-> <> div button textarea span input]]
+            [respo.comp.space :refer [=<]]
+            [reel.comp.reel :refer [comp-reel]]
+            [notifier.config :refer [dev?]]
+            [clojure.set :refer [difference]]))
 
-(defonce shown-ids (atom (hash-set)))
+(defcomp comp-notifier () (div {} (<> "Notifier")))
 
 (defn show-it! [notification on-close!]
   (let [instance (js/Notification.
@@ -23,7 +31,9 @@
        js/Notification
        (fn [permission] (if (= "granted" permission) (show-it! notification on-close!)))))))
 
+(defonce shown-ids (atom (hash-set)))
+
 (defn notify! [notifications on-close!]
-  (let [ids (into (hash-set) (keys notifications)), new-ids (set/difference ids @shown-ids)]
+  (let [ids (into (hash-set) (keys notifications)), new-ids (difference ids @shown-ids)]
     (doseq [new-id new-ids] (pop-notification! (get notifications new-id) on-close!))
     (reset! shown-ids ids)))

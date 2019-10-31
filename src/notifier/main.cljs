@@ -1,33 +1,48 @@
 
 (ns notifier.main
-  (:require [respo.core :refer [render! clear-cache!]]
+  (:require [respo.core :refer [render! clear-cache! realize-ssr!]]
             [notifier.comp.container :refer [comp-container]]
+            [notifier.updater :refer [updater]]
+            [notifier.schema :as schema]
+            [reel.util :refer [listen-devtools!]]
+            [reel.core :refer [reel-updater refresh-reel]]
+            [reel.schema :as reel-schema]
             [cljs.reader :refer [read-string]]
-            [notifier.updater.core :refer [updater]]
-            [notifier.comp.notifications :refer [notify!]]))
+            [notifier.config :as config]
+            [cumulo-util.core :refer [repeat!]]))
 
-(defonce states-ref (atom {}))
-
-(defonce store-ref (atom {}))
+(defonce *reel
+  (atom (-> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store))))
 
 (defn dispatch! [op op-data]
-  (let [id (.valueOf (js/Date.)), new-store (updater @store-ref op op-data id)]
-    (reset! store-ref new-store)))
+  (when config/dev? (println "Dispatch:" op))
+  (reset! *reel (reel-updater updater @*reel op op-data)))
 
-(defn on-close! [id] (dispatch! :remove-one id))
+(def mount-target (.querySelector js/document ".app"))
 
-(defn render-app! []
-  (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref) target dispatch! states-ref)
-    (notify! @store-ref on-close!)))
+(defn persist-storage! []
+  (.setItem js/localStorage (:storage-key config/site) (pr-str (:store @*reel))))
 
-(defn -main []
-  (enable-console-print!)
-  (render-app!)
-  (add-watch store-ref :changes render-app!)
-  (add-watch states-ref :changes render-app!)
-  (println "app started!"))
+(defn render-app! [renderer]
+  (renderer mount-target (comp-container @*reel) #(dispatch! %1 %2)))
 
-(defn on-jsload [] (clear-cache!) (render-app!) (println "code update."))
+(def ssr? (some? (js/document.querySelector "meta.respo-ssr")))
 
-(set! (.-onload js/window) -main)
+(defn main! []
+  (println "Running mode:" (if config/dev? "dev" "release"))
+  (if ssr? (render-app! realize-ssr!))
+  (render-app! render!)
+  (add-watch *reel :changes (fn [] (render-app! render!)))
+  (listen-devtools! "a" dispatch!)
+  (.addEventListener js/window "beforeunload" persist-storage!)
+  (repeat! 60 persist-storage!)
+  (let [raw (.getItem js/localStorage (:storage-key config/site))]
+    (when (some? raw) (dispatch! :hydrate-storage (read-string raw))))
+  (println "App started."))
+
+(defn reload! []
+  (clear-cache!)
+  (reset! *reel (refresh-reel @*reel schema/store updater))
+  (println "Code updated."))
+
+(defn snippets [] (println config/cdn?))
