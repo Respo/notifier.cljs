@@ -9,13 +9,19 @@
             [reel.comp.reel :refer [comp-reel]]
             [respo-md.comp.md :refer [comp-md]]
             [notifier.config :refer [dev?]]
-            [notifier.core :refer [comp-notifier]]))
+            [notifier.core :refer [effect-notify]]))
 
 (defcomp
  comp-container
  (reel)
  (let [store (:store reel), states (:states store)]
-   (div
-    {:style (merge ui/global ui/row)}
-    (comp-notifier)
-    (when dev? (cursor-> :reel comp-reel states reel {})))))
+   [(effect-notify
+     (:notifications store)
+     {:when-inactive? true, :on-close (fn [noti] (println noti))})
+    (div
+     {:style (merge ui/global ui/row)}
+     (button
+      {:style ui/button,
+       :inner-text "Display message",
+       :on-click (fn [e d! m!] (d! :notify {:title "a", :body "content", :icon nil}))})
+     (when dev? (cursor-> :reel comp-reel states reel {})))]))
