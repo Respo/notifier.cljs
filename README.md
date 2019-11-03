@@ -9,7 +9,7 @@ Notifications for Respo
 [![Clojars Project](https://img.shields.io/clojars/v/respo/notifier.svg)](https://clojars.org/respo/notifier)
 
 ```clojure
-[respo/notifier "0.1.2"]
+[respo/notifier "0.1.3"]
 ```
 
 ```clojure
