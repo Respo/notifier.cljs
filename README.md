@@ -1,8 +1,8 @@
 
-Notifications Layer for Respo
+Notifications for Respo
 ----
 
-Since Notifications API does not fit into Respo's declarative pattern, I have to use mutable states to pop notifications. So, be special...
+> Pop notifications with Respo Effects
 
 ### Usage
 
@@ -22,8 +22,8 @@ Since Notifications API does not fit into Respo's declarative pattern, I have to
             :id "q42342"}
 })
 
-; rerender on every change to detect new ids
-(notify! notifications)
+; pop notifications with effects
+(effect-notify notifications {:when-inactive? true, on-close (fn [noti])})
 ```
 
 ### Workflow

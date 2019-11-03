@@ -1,8 +1,8 @@
 
-{:pom {:group-id "mvc-works",
-       :artifact-id "calcit-workflow",
-       :version "0.1.0",
-       :name "Workflow"}
+{:pom {:group-id "respo",
+       :artifact-id "notify",
+       :version "0.1.3-a1",
+       :name "Notifications with Respo Effects API"}
  :packaging {:jar {:enabled true
                    :remote-repository {:id "clojars"
                                        :url "https://clojars.org/repo"}}}

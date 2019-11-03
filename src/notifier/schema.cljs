@@ -1,4 +1,6 @@
 
 (ns notifier.schema )
 
-(def store {:states {}, :content ""})
+(def notification {:title nil, :id nil, :body nil, :icon nil})
+
+(def store {:states {}, :notifications {}})

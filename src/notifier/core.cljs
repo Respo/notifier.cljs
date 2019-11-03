@@ -4,36 +4,59 @@
             [respo-ui.core :as ui]
             [respo.core
              :refer
-             [defcomp cursor-> action-> mutation-> <> div button textarea span input]]
+             [defcomp
+              cursor->
+              action->
+              mutation->
+              <>
+              div
+              button
+              textarea
+              span
+              input
+              defeffect]]
             [respo.comp.space :refer [=<]]
             [reel.comp.reel :refer [comp-reel]]
             [notifier.config :refer [dev?]]
-            [clojure.set :refer [difference]]))
+            [clojure.set :refer [difference union]]))
 
-(defcomp comp-notifier () (div {} (<> "Notifier")))
+(defonce *shown-ids (atom #{}))
 
-(defn show-it! [notification on-close!]
+(defn show-it! [notification options]
   (let [instance (js/Notification.
                   (:title notification)
                   (clj->js
                    (merge
                     {}
                     (if (some? (:body notification)) {"body" (:body notification)})
-                    (if (some? (:icon notification)) {"icon" (:icon notification)}))))]
-    (set! (.-onclose instance) (fn [event] (on-close! (:id notification))))
+                    (if (some? (:icon notification)) {"icon" (:icon notification)}))))
+        on-close (:on-close options)]
+    (set! (.-onclose instance) (fn [event] (on-close notification)))
     (set! (.-onclick instance) (fn [event] (.focus js/window) (.close instance)))))
 
-(defn pop-notification! [notification on-close!]
-  (if (not= "visible" (.-visibilityState js/document))
-    (if (= "granted" (.-permission js/Notification))
-      (show-it! notification on-close!)
+(defn pop-notification! [notification options]
+  (println
+   options
+   (.-visibilityState js/document)
+   (if (:inactive-only? options) (not= "visible" (.-visibilityState js/document)) true))
+  (when (if (:when-inactive? options) (not= "visible" (.-visibilityState js/document)) true)
+    (when (= "granted" (.-permission js/Notification))
+      (show-it! notification options)
       (.requestPermission
        js/Notification
-       (fn [permission] (if (= "granted" permission) (show-it! notification on-close!)))))))
+       (fn [permission] (if (= "granted" permission) (show-it! notification options)))))))
 
-(defonce shown-ids (atom (hash-set)))
+(defeffect
+ effect-notify
+ (notifications options)
+ (action el *local)
+ (if (or (= action :mount) (= action :update))
+   (let [ids (into #{} (keys notifications)), new-ids (difference ids @*shown-ids)]
+     (doseq [new-id new-ids] (pop-notification! (get notifications new-id) options))
+     (reset! *shown-ids (union ids @*shown-ids)))
+   nil))
 
 (defn notify! [notifications on-close!]
-  (let [ids (into (hash-set) (keys notifications)), new-ids (difference ids @shown-ids)]
+  (let [ids (into (hash-set) (keys notifications)), new-ids (difference ids @*shown-ids)]
     (doseq [new-id new-ids] (pop-notification! (get notifications new-id) on-close!))
-    (reset! shown-ids ids)))
+    (reset! *shown-ids ids)))
