@@ -2,19 +2,7 @@
 (ns notifier.core
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
-            [respo.core
-             :refer
-             [defcomp
-              cursor->
-              action->
-              mutation->
-              <>
-              div
-              button
-              textarea
-              span
-              input
-              defeffect]]
+            [respo.core :refer [defcomp >> <> div button textarea span input defeffect]]
             [respo.comp.space :refer [=<]]
             [reel.comp.reel :refer [comp-reel]]
             [notifier.config :refer [dev?]]

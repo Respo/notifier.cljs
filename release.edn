@@ -1,0 +1,6 @@
+{:version "0.1.3"
+ :group-id "respo"
+ :artifact-id "notifier"
+ :skip-tag true
+ :description "Notifications with Respo Effects API"
+ :scm-url "https://github.com/Respo/notifier"}
