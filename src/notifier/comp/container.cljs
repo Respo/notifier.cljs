@@ -2,9 +2,7 @@
 (ns notifier.comp.container
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
-            [respo.core
-             :refer
-             [defcomp cursor-> action-> mutation-> <> div button textarea span input]]
+            [respo.core :refer [defcomp >> <> div button textarea span input]]
             [respo.comp.space :refer [=<]]
             [reel.comp.reel :refer [comp-reel]]
             [respo-md.comp.md :refer [comp-md]]
@@ -43,4 +41,4 @@
         :inner-text "Display message after 1s",
         :on-click (fn [e d! m!]
           (delay! 1 (fn [] (d! :notify {:title "a", :body "content", :icon nil}))))}))
-     (when dev? (cursor-> :reel comp-reel states reel {})))]))
+     (when dev? (comp-reel (>> states :reel) reel {})))]))
